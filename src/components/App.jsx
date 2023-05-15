@@ -1,8 +1,10 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
 
-import Container from 'components/Container/Container';
-import ContactForm from 'components/ContactForm/ContactForm';
+import Container from './Container/Container';
+import ContactForm from './ContactForm/ContactForm';
+import ContactList from './ContactList/ContactList';
+import Filter from './Filter/Filter';
 
 class App extends Component {
   state = {
@@ -40,11 +42,39 @@ class App extends Component {
     }
   };
 
+  deleteContact = contactId => {
+    this.setState(({ prevContacts }) => ({
+      contacts: prevContacts.filter(contact => contact.id !== contactId),
+    }));
+  };
+
+  handleFilter = e => {
+    this.setState({ filter: e.currentTarget.value });
+  };
+
   render() {
+    const { contacts, filter } = this.state;
+    const filterValue = filter.toUpperCase();
+    const visibleContacts = contacts.filter(element =>
+      element.name.toUpperCase().includes(filterValue)
+    );
+
     return (
       <Container>
         <h1>Phonebook</h1>
         <ContactForm onSubmit={this.addContact} />
+        <h2>Contacts</h2>
+        {contacts.length > 1 && (
+          <Filter value={filter} onChange={this.handleFilter} />
+        )}
+        {contacts.length > 0 ? (
+          <ContactList
+            contacts={visibleContacts}
+            onDelete={this.deleteContact}
+          />
+        ) : (
+          <p>Your phonebook is empty.</p>
+        )}
       </Container>
     );
   }
